@@ -1,0 +1,21 @@
+name: http_interop_middleware
+version: 0.0.1
+homepage: https://github.com/f3ath/dart-http-interop-middleware
+description: A set of composable middleware for http_interop
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  http_interop: ^2.0.0
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.21.1
+  coverage: ^1.3.0
+  check_coverage: ^0.0.4
+
+
+cider:
+  link_template:
+    diff: https://github.com/f3ath/dart-http-interop-middleware/compare/%from%...%to%
+    tag: https://github.com/f3ath/dart-http-interop-middleware/releases/tag/%tag%
