@@ -1,5 +1,5 @@
 name: http_interop_middleware
-version: 0.0.1
+version: 0.1.0
 homepage: https://github.com/f3ath/dart-http-interop-middleware
 description: A set of composable middleware for http_interop
 environment:

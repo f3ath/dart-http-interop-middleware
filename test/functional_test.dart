@@ -52,7 +52,7 @@ main() {
     });
 
     test('Calls onResponse', () async {
-      final wrapped = middleware(onResponse: (Response response) async {
+      final wrapped = middleware(onResponse: (Response response, _) async {
         loggedResponse = response;
         if (response.statusCode == 500) return ok;
         return null;
@@ -64,6 +64,31 @@ main() {
       expect(loggedRequest, same(post));
       expect(loggedResponse, same(ise));
     });
+
+    test('Middleware.add combines two middleware functions', () async {
+      final mw1 = middleware(onRequest: (Request request) async {
+        if (request.method == 'get') {
+          return Response(201, Body(), Headers());
+        }
+        return null;
+      });
+
+      final mw2 = middleware(onResponse: (Response response, _) async {
+        if (response.statusCode == 201) {
+          return Response(202, Body(), Headers());
+        }
+        return null;
+      });
+
+      final Handler return200 = (Request request) async {
+        return Response(200, Body(), Headers());
+      };
+
+      final oneTwo = await mw1.add(mw2)(return200)(get);
+      final twoOne = await mw2.add(mw1)(return200)(get);
+      expect(oneTwo.statusCode, equals(202));
+      expect(twoOne.statusCode, equals(201));
+    });
   });
 
   group('CatchResponse', () {
@@ -73,5 +98,4 @@ main() {
       expect(await wrapped(post), equals(ise));
     });
   });
-
 }
