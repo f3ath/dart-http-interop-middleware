@@ -41,10 +41,12 @@ main() {
     });
 
     test('Calls onRequest', () async {
-      final wrapped = middleware(onRequest: (Request request) async {
-        if (request.method == 'POST') return ise;
-        return null;
-      })(returnOk);
+      final wrapped = middleware(
+        onRequest: (Request request) async {
+          if (request.method == 'POST') return ise;
+          return null;
+        },
+      )(returnOk);
       expect(await wrapped(post), same(ise));
       expect(loggedRequest, isNull);
       expect(await wrapped(get), same(ok));
@@ -52,11 +54,13 @@ main() {
     });
 
     test('Calls onResponse', () async {
-      final wrapped = middleware(onResponse: (Response response, _) async {
-        loggedResponse = response;
-        if (response.statusCode == 500) return ok;
-        return null;
-      })(returnError);
+      final wrapped = middleware(
+        onResponse: (Response response, _) async {
+          loggedResponse = response;
+          if (response.statusCode == 500) return ok;
+          return null;
+        },
+      )(returnError);
       expect(await wrapped(get), same(ok));
       expect(loggedResponse, same(ise));
 
@@ -66,19 +70,23 @@ main() {
     });
 
     test('Middleware.add combines two middleware functions', () async {
-      final mw1 = middleware(onRequest: (Request request) async {
-        if (request.method == 'GET') {
-          return Response(201, Body.empty(), Headers());
-        }
-        return null;
-      });
+      final mw1 = middleware(
+        onRequest: (Request request) async {
+          if (request.method == 'GET') {
+            return Response(201, Body.empty(), Headers());
+          }
+          return null;
+        },
+      );
 
-      final mw2 = middleware(onResponse: (Response response, _) async {
-        if (response.statusCode == 201) {
-          return Response(202, Body.empty(), Headers());
-        }
-        return null;
-      });
+      final mw2 = middleware(
+        onResponse: (Response response, _) async {
+          if (response.statusCode == 201) {
+            return Response(202, Body.empty(), Headers());
+          }
+          return null;
+        },
+      );
 
       final Handler return200 = (Request request) async {
         return Response(200, Body.empty(), Headers());
