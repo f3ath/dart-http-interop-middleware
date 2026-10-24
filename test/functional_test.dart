@@ -3,11 +3,11 @@ import 'package:http_interop_middleware/http_interop_middleware.dart';
 import 'package:test/test.dart';
 
 main() {
-  final ok = Response(200, Body(), Headers());
-  final ise = Response(500, Body(), Headers());
+  final ok = Response(200, Body.empty(), Headers());
+  final ise = Response(500, Body.empty(), Headers());
 
-  final get = Request('get', Uri(), Body(), Headers());
-  final post = Request('post', Uri(), Body(), Headers());
+  final get = Request('GET', Uri(), Body.empty(), Headers());
+  final post = Request('POST', Uri(), Body.empty(), Headers());
 
   Request? loggedRequest;
   Response? loggedResponse;
@@ -24,7 +24,7 @@ main() {
 
   throwISEOnPost(Request request) async {
     loggedRequest = request;
-    if (request.method == 'post') throw ise;
+    if (request.method == 'POST') throw ise;
     return ok;
   }
 
@@ -42,7 +42,7 @@ main() {
 
     test('Calls onRequest', () async {
       final wrapped = middleware(onRequest: (Request request) async {
-        if (request.method == 'post') return ise;
+        if (request.method == 'POST') return ise;
         return null;
       })(returnOk);
       expect(await wrapped(post), same(ise));
@@ -67,25 +67,25 @@ main() {
 
     test('Middleware.add combines two middleware functions', () async {
       final mw1 = middleware(onRequest: (Request request) async {
-        if (request.method == 'get') {
-          return Response(201, Body(), Headers());
+        if (request.method == 'GET') {
+          return Response(201, Body.empty(), Headers());
         }
         return null;
       });
 
       final mw2 = middleware(onResponse: (Response response, _) async {
         if (response.statusCode == 201) {
-          return Response(202, Body(), Headers());
+          return Response(202, Body.empty(), Headers());
         }
         return null;
       });
 
       final Handler return200 = (Request request) async {
-        return Response(200, Body(), Headers());
+        return Response(200, Body.empty(), Headers());
       };
 
-      final oneTwo = await mw1.add(mw2)(return200)(get);
-      final twoOne = await mw2.add(mw1)(return200)(get);
+      final oneTwo = await mw1.wrapIn(mw2)(return200)(get);
+      final twoOne = await mw2.wrapIn(mw1)(return200)(get);
       expect(oneTwo.statusCode, equals(202));
       expect(twoOne.statusCode, equals(201));
     });
